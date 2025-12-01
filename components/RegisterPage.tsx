@@ -35,10 +35,8 @@ export const RegisterPage: React.FC = () => {
 
   return (
     <div className="min-h-screen w-full bg-white dark:bg-[#2a2a2a] relative flex flex-col items-center justify-center font-sans overflow-hidden transition-colors duration-500">
-      {/* Background Gradients */}
       <div className="fixed top-0 left-0 right-0 h-64 bg-linear-to-b from-white via-white to-transparent dark:from-[#2a2a2a] dark:via-[#2a2a2a] pointer-events-none z-10"></div>
 
-      {/* Back Button */}
       <button
         onClick={() => router.push('/')}
         className="fixed top-8 left-8 z-50 p-3 rounded-full bg-white/80 dark:bg-[#3a3a3a]/80 border border-gray-200/50 dark:border-[#454545] hover:bg-gray-50 dark:hover:bg-[#4a4a4a] transition-colors shadow-sm backdrop-blur-sm"
@@ -105,7 +103,6 @@ export const RegisterPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Footer Gradient */}
       <div className="fixed bottom-0 left-0 right-0 h-32 bg-linear-to-t from-white to-transparent dark:from-[#2a2a2a] pointer-events-none z-10"></div>
     </div>
   );

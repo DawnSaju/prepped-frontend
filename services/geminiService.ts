@@ -12,7 +12,6 @@ export async function* sendMessageToGeminiStream(
     let contents: any = message;
 
     if (mediaBase64) {
-      // Determine if it's image or audio based on base64 header
       const match = mediaBase64.match(/^data:(.+);base64,(.+)$/);
 
       if (match) {
@@ -21,7 +20,6 @@ export async function* sendMessageToGeminiStream(
 
         contents = {
           parts: [
-            // Only add text part if message exists
             ...(message ? [{ text: message }] : []),
             {
               inlineData: {
@@ -54,7 +52,6 @@ export async function* sendMessageToGeminiStream(
   }
 }
 
-// Keep the old one for backward compatibility if needed, or alias it
 export const sendMessageToGemini = async (message: string, mediaBase64?: string): Promise<string> => {
   let fullText = '';
   for await (const chunk of sendMessageToGeminiStream(message, mediaBase64)) {

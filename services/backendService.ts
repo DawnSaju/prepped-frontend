@@ -1,11 +1,11 @@
 import { MemoryBank, ExecutionStep, ChatSession } from '../types';
 
-const API_BASE_URL = 'https://prepped-backend.vercel.app';
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://prepped-backend.vercel.app';
 
 export interface ChatResponse {
     response: string;
     is_handoff: boolean;
-    current_profile: any; // We'll map this to MemoryBank
+    current_profile: any;
     agent_name: string;
     trace: ExecutionStep[];
 }
@@ -36,7 +36,6 @@ export const sendMessageToBackend = async (
 
         const data: ChatResponse = await res.json();
 
-        // Map backend profile to frontend MemoryBank
         const backendProfile = data.current_profile;
         
         const memoryBank: MemoryBank = {
@@ -87,7 +86,6 @@ export const getSession = async (sessionId: string): Promise<{ memoryBank: Memor
         }
         const data = await res.json();
         
-        // Map backend profile to frontend MemoryBank
         const memoryBank: MemoryBank = {
             chiefComplaint: data.main_complaint || "",
             symptomTimeline: data.symptoms.map((s: any) => ({
@@ -100,7 +98,6 @@ export const getSession = async (sessionId: string): Promise<{ memoryBank: Memor
             suggestedQuestions: data.suggested_questions || []
         };
 
-        // Map backend messages to frontend Message format
         const messages = (data.messages || []).map((msg: any) => ({
             id: msg.id,
             role: msg.role,

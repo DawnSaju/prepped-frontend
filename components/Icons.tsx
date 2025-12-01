@@ -1,7 +1,5 @@
 import React from 'react';
 
-// --- Core Icons ---
-
 export const FigmaIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
   <svg className={className} viewBox="0 0 38 57" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M9.5 57C14.7467 57 19 52.7467 19 47.5V28.5H9.5C4.25329 28.5 0 32.7533 0 38C0 43.2467 4.25329 57 9.5 57Z" fill="#0ACF83" />
@@ -242,7 +240,6 @@ export const DownloadIcon = ({ className = "w-5 h-5" }: { className?: string }) 
   </svg>
 );
 
-// --- Profile Icons ---
 export const UserIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
     <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
@@ -301,8 +298,6 @@ export const ExternalLinkIcon = ({ className = "w-5 h-5" }: { className?: string
   </svg>
 );
 
-// --- Theme Icons ---
-
 export const MoonIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" className={className}>
     <defs>
@@ -333,10 +328,6 @@ export const SunIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
     <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
   </svg>
 );
-
-
-// --- 'Thiings' Style Object Icons ---
-// Detailed, retro-futuristic style with consistent stroke weights
 
 export const ThingRetroMacIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -413,8 +404,6 @@ export const ThingCubeIcon = ({ className = "w-5 h-5" }: { className?: string })
     <line x1="12" y1="22.08" x2="12" y2="12" />
   </svg>
 );
-
-// --- Text Editor Icons ---
 
 export const BoldIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}>

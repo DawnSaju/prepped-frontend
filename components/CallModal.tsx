@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { NeoButton } from './ui/NeoButton';
 import { XIcon, PhoneIcon, CheckIcon } from './Icons';
+import { API_BASE_URL } from '../services/backendService';
 
 interface CallModalProps {
     isOpen: boolean;
@@ -15,32 +16,39 @@ export const CallModal: React.FC<CallModalProps> = ({ isOpen, onClose, sessionId
     const [status, setStatus] = useState<'idle' | 'calling' | 'connected' | 'completed' | 'error'>('idle');
     const [errorMessage, setErrorMessage] = useState('');
     const [callStatus, setCallStatus] = useState<string>('');
+    const [agentStatus, setAgentStatus] = useState<string>('');
+    const [lastMessage, setLastMessage] = useState<string>('');
 
-    // Reset state when modal opens
     useEffect(() => {
         if (isOpen) {
             setStatus('idle');
             setErrorMessage('');
             setCallStatus('');
+            setAgentStatus('');
+            setLastMessage('');
         }
     }, [isOpen]);
 
-    // Polling for call status
     useEffect(() => {
         let intervalId: NodeJS.Timeout;
 
         if (isOpen && status === 'connected' && sessionId) {
             intervalId = setInterval(async () => {
                 try {
-                    const res = await fetch(`http://localhost:8000/call-status/${sessionId}`);
+                    const res = await fetch(`${API_BASE_URL}/session/${sessionId}`);
                     if (res.ok) {
                         const data = await res.json();
                         setCallStatus(data.call_status);
+                        setAgentStatus(data.status);
+                        
+                        if (data.messages && data.messages.length > 0) {
+                            const lastMsg = data.messages[data.messages.length - 1];
+                            setLastMessage(lastMsg.content);
+                        }
                         
                         if (data.call_status === 'completed') {
                             setStatus('completed');
                             clearInterval(intervalId);
-                            // Redirect to canvas for results
                             setTimeout(() => {
                                 onClose();
                                 router.push(`/canvas?session_id=${sessionId}`);
@@ -54,7 +62,7 @@ export const CallModal: React.FC<CallModalProps> = ({ isOpen, onClose, sessionId
                 } catch (error) {
                     console.error("Polling error:", error);
                 }
-            }, 2000); // Poll every 2 seconds
+            }, 2000);
         }
 
         return () => {
@@ -72,7 +80,7 @@ export const CallModal: React.FC<CallModalProps> = ({ isOpen, onClose, sessionId
         setErrorMessage('');
 
         try {
-            const res = await fetch('http://localhost:8000/initiate-call', {
+            const res = await fetch(`${API_BASE_URL}/initiate-call`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -136,7 +144,7 @@ export const CallModal: React.FC<CallModalProps> = ({ isOpen, onClose, sessionId
 
                             <div className="pt-2">
                                 <NeoButton type="submit" width="w-full" height="h-[44px]">
-                                    <span className="font-semibold">Call Me Now</span>
+                                    <span className="font-semibold text-gray-800 dark:text-gray-200">Call Me Now</span>
                                 </NeoButton>
                             </div>
                         </form>
@@ -171,6 +179,24 @@ export const CallModal: React.FC<CallModalProps> = ({ isOpen, onClose, sessionId
                                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                                     Please answer your phone to start the interview.
                                 </p>
+                                
+                                {agentStatus && (
+                                    <div className="mt-4 p-3 bg-gray-50 dark:bg-[#2a2a2a] rounded-lg border border-gray-100 dark:border-[#333]">
+                                        <div className="flex items-center justify-center gap-2 mb-2">
+                                            <div className={`w-2 h-2 rounded-full ${agentStatus === 'interview' ? 'bg-blue-500' : 'bg-purple-500'} animate-pulse`}></div>
+                                            <span className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                                                {agentStatus === 'interview' ? 'Interviewing' : 
+                                                 agentStatus === 'analysis' ? 'Analyzing Data' : 
+                                                 agentStatus}
+                                            </span>
+                                        </div>
+                                        {lastMessage && (
+                                            <p className="text-xs text-gray-600 dark:text-gray-300 italic line-clamp-3">
+                                                "{lastMessage}"
+                                            </p>
+                                        )}
+                                    </div>
+                                )}
                             </div>
                             <button 
                                 onClick={onClose}

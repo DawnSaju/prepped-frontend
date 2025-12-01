@@ -30,7 +30,6 @@ export const AgentTrace: React.FC<AgentTraceProps> = ({ steps }) => {
                 <div className="relative pl-4 border-l-2 border-gray-100 dark:border-[#333] space-y-3 ml-2 animate-in fade-in slide-in-from-top-1 duration-200">
                     {steps.map((step, idx) => (
                         <div key={idx} className="relative animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: `${idx * 50}ms` }}>
-                            {/* Timeline Dot */}
                             <div className={`
                                 absolute -left-[21px] top-1.5 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-[#2a2a2a]
                                 ${step.type === 'thought' ? 'bg-gray-300 dark:bg-gray-600' : 

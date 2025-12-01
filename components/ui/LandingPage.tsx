@@ -68,7 +68,7 @@ const NumberTicker = ({ value }: { value: number }) => {
         const observer = new IntersectionObserver(
             (entries) => {
                 if (entries[0].isIntersecting) {
-                    const duration = 2000; // 2s
+                    const duration = 2000;
                     const start = 0;
                     const end = value;
                     const startTime = performance.now();

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { OAuthProvider } from 'appwrite';
 import { AuthInput, AuthButton } from './AuthComponents';
 import { ArrowLeftIcon } from './Icons';
 import { account } from '../services/appwrite';
@@ -34,7 +35,7 @@ export const LoginPage: React.FC = () => {
   const handleGoogleLogin = () => {
     try {
         account.createOAuth2Session(
-            'google',
+            OAuthProvider.Google,
             `${window.location.origin}/dashboard`,
             `${window.location.origin}/login`
         );

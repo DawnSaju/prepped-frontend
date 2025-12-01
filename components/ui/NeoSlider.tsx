@@ -32,13 +32,11 @@ export const NeoSlider: React.FC<NeoSliderProps> = ({
 
   const handleMouseMove = (e: MouseEvent) => {
     const deltaX = e.clientX - startXRef.current;
-    // Sensitivity: 10px pixel movement = 1 step
     const stepsMoved = Math.round(deltaX / 20);
     
     let newValue = startValueRef.current + (stepsMoved * step);
     newValue = Math.max(min, Math.min(max, newValue));
     
-    // Round to avoid floating point errors
     if (step < 1) {
         newValue = parseFloat(newValue.toFixed(1));
     }

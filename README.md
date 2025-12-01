@@ -1,36 +1,51 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+### Problem Statement
 
-## Getting Started
+Patients frequently struggle to communicate effectively during short medical appointments. Anxiety, low medical literacy, or simply forgetting details can lead to incomplete histories. Doctors, often pressed for time, must spend valuable minutes gathering basic information rather than diagnosing.
 
-First, run the development server:
+Why this matters: Incomplete information can lead to misdiagnosis or delayed treatment. Patients often leave feeling unheard and confused. This gap disproportionately affects vulnerable populations who may struggle to advocate for themselves.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### Why agents?
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Traditional chatbots are insufficient because a patient intake is a stateful, multi-step process, not a single Q&A turn. 
+- State Management: An agent needs to remember and structure information (symptoms, timeline) across a long conversation. 
+- Active Reasoning: The system must decide what question to ask next based on previous answers (e.g., "You mentioned knee pain; is there swelling?"). 
+- Tool Use: The agent needs to research medical definitions (via Google Search) to ground its analysis and generate a structured artifact (the briefing).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### What you created
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Architecture: A Sequential Multi-Agent System with a shared Memory Bank.
+- Agent A (Intake Nurse): A conversational loop agent that interviews the patient. It uses a custom tool (update_profile) to extract structured data into the Memory Bank.
+- Memory Bank: A persistent, structured state (JSON) holding the patient's profile (Symptoms, Meds, History).
+- Agent B (Medical Analyst): A sequential task agent that triggers after the interview. It reviews the Memory Bank and uses Google Search to generate a professional "Doctor Briefing."
+- Clean User Interface: A Next.js frontend that visualizes the agent's "brain" (live profile updates) alongside the chat.
 
-## Learn More
+### Demo
 
-To learn more about Next.js, take a look at the following resources:
+Live Demo: [prepped-agentic.vercel.app](url)
+Product Demo Video: [https://www.youtube.com/watch?v=w21QL21tCeU](url)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Key Capabilities Demonstrated:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Real-time Extraction: Watch the "Live Profile" sidebar update instantly as the user chats.
+- Smart Handoff: The system autonomously decides when it has enough info to switch from "Nurse" to "Analyst."
+- Emergency Mode: A simulated voice call feature for accessible intake.
 
-## Deploy on Vercel
+### Tech Stack:
+- Frontend: Next.js 14, TypeScript, Tailwind CSS.
+- Backend: Python, FastAPI.
+- AI Models: Google Gemini 1.5 Flash (for speed) and Pro (for reasoning), accessed via Google AI Studio.
+- Auth & Database: Appwrite (Google OAuth for secure login, Cloud Database for session persistence).
+- Tools: Custom Python functions (update_profile), Google Search (simulated/real), Twilio (simulated for voice).
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Process:
+I followed the AgentOps Lifecycle:
+- Prototype: Started with a simple script to test the prompts.
+- Architecture: Decided on the "Split Stack" (Next.js + Python) to enable a rich UI.
+- Security: Implemented Appwrite Authentication to ensure patient data is isolated and secure, adhering to - privacy best practices.
+- Refinement: Iterated on the system instructions to ensure the "Nurse" was empathetic and the "Analyst" was objective.
+- Observability: Built the "Glass Box" UI to make the agent's internal state visible to the user.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### If I had more time, this is what I'd do
+
+- MCP Integration: Build an MCP server to push the "Doctor Briefing" directly into a hospital's Electronic - - - Health Record system (e.g., Epic or Cerner) via FHIR standards.
+- Multilingual Support: Add a translation layer so the interview can happen in the patient's native language, but the report is generated in English for the doctor.

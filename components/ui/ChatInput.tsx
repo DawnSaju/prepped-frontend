@@ -16,7 +16,6 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading, 
     const [recordingDuration, setRecordingDuration] = useState(0);
     const [mode, setMode] = useState<'text' | 'image'>('text');
 
-    // Image Generation Aspect Ratios
     const [aspectRatio, setAspectRatio] = useState<'square' | 'wide' | 'portrait'>('square');
     const { theme } = useTheme();
 
@@ -38,7 +37,6 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading, 
             onSendMessage(inputValue, selectedImage || undefined, mode === 'image');
             setInputValue('');
             setSelectedImage(null);
-            // Don't reset mode automatically, let user stay in flow or toggle out
         }
     };
 

@@ -9,7 +9,6 @@ interface MedicalProfileCardProps {
 export const MedicalProfileCard: React.FC<MedicalProfileCardProps> = ({ memoryBank }) => {
     return (
         <div className="w-80 h-full border-r border-gray-200 dark:border-[#454545] bg-gray-50/50 dark:bg-[#2a2a2a] flex flex-col overflow-hidden transition-all duration-300">
-            {/* Header */}
             <div className="p-4 border-b border-gray-200 dark:border-[#454545] flex items-center gap-2">
                 <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg">
                     <ThingChipIcon className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
@@ -20,10 +19,8 @@ export const MedicalProfileCard: React.FC<MedicalProfileCardProps> = ({ memoryBa
                 </div>
             </div>
 
-            {/* Scrollable Content */}
             <div className="flex-1 overflow-y-auto p-4 space-y-6 no-scrollbar">
                 
-                {/* Chief Complaint */}
                 <div className="space-y-3">
                     <h3 className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider flex items-center gap-2">
                         <ZapIcon className="w-3 h-3" /> Chief Complaint
@@ -35,7 +32,6 @@ export const MedicalProfileCard: React.FC<MedicalProfileCardProps> = ({ memoryBa
                     </div>
                 </div>
 
-                {/* Symptom Timeline (HPI) */}
                 <div className="space-y-3">
                     <h3 className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider flex items-center gap-2">
                         <FileIcon className="w-3 h-3" /> Symptom Timeline
@@ -64,7 +60,6 @@ export const MedicalProfileCard: React.FC<MedicalProfileCardProps> = ({ memoryBa
                     </div>
                 </div>
 
-                {/* Current Medications */}
                 <div className="space-y-3">
                     <h3 className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider flex items-center gap-2">
                         <ShieldIcon className="w-3 h-3" /> Current Medications
@@ -81,7 +76,6 @@ export const MedicalProfileCard: React.FC<MedicalProfileCardProps> = ({ memoryBa
                     </div>
                 </div>
 
-                {/* Family History */}
                 <div className="space-y-3">
                     <h3 className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider flex items-center gap-2">
                         <UserIcon className="w-3 h-3" /> Family History
@@ -98,7 +92,6 @@ export const MedicalProfileCard: React.FC<MedicalProfileCardProps> = ({ memoryBa
                     </div>
                 </div>
 
-                {/* Suggested Questions (Agent B Output) */}
                 <div className="space-y-3">
                     <h3 className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider flex items-center gap-2">
                         <SparklesIcon className="w-3 h-3 text-purple-500" /> Suggested Questions

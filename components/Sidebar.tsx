@@ -37,7 +37,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const [activeTab, setActiveTab] = useState<'context' | 'history'>('context');
   const router = useRouter();
 
-  // Group sessions by category (using 'date' field as category)
   const groupedSessions = sessions.reduce((acc, session) => {
     if (!acc[session.date]) {
       acc[session.date] = [];

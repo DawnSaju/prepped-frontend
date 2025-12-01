@@ -16,7 +16,6 @@ export const SharePopover: React.FC<SharePopoverProps> = ({ isOpen, onClose }) =
     const { theme } = useTheme();
     const cardRef = useRef<HTMLDivElement>(null);
 
-    // Generate a mock share link (in production, this would come from your backend)
     const shareLink = typeof window !== 'undefined'
         ? `${window.location.origin}/share/${Math.random().toString(36).substr(2, 9)}`
         : 'https://app.example.com/share/abc123';

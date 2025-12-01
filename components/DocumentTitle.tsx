@@ -88,7 +88,6 @@ export function DocumentTitle({
                 onClick={(e) => e.stopPropagation()}
             />
 
-            {/* Save Status Indicator */}
             {showStatus && (
                 <div className={`
                     text-xs font-medium text-gray-500 dark:text-gray-400

@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { PlayIcon, PauseIcon } from './Icons';
 
 interface AudioPlayerProps {
-    src?: string; // Optional real source
-    duration?: string; // Optional duration label
+    src?: string;
+    duration?: string;
 }
 
 export const AudioPlayer: React.FC<AudioPlayerProps> = ({ src, duration = "0:00" }) => {
@@ -12,7 +12,6 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ src, duration = "0:00"
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const animationRef = useRef<number | null>(null);
 
-    // Initialize audio element if src provided
     useEffect(() => {
         if (src) {
             audioRef.current = new Audio(src);
@@ -22,7 +21,6 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ src, duration = "0:00"
                 if (animationRef.current) cancelAnimationFrame(animationRef.current);
             });
             
-            // Listen to time updates for real progress
             audioRef.current.addEventListener('timeupdate', () => {
                 if (audioRef.current && audioRef.current.duration) {
                      const p = (audioRef.current.currentTime / audioRef.current.duration) * 100;
@@ -49,7 +47,6 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ src, duration = "0:00"
                 setIsPlaying(true);
             }
         } else {
-            // Mock behavior for when no src is provided (e.g. placeholder)
             if (isPlaying) {
                 setIsPlaying(false);
                 if (animationRef.current) cancelAnimationFrame(animationRef.current);
@@ -64,22 +61,18 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ src, duration = "0:00"
         }
     };
 
-    // Clean up animation on unmount
     useEffect(() => {
         return () => {
             if (animationRef.current) cancelAnimationFrame(animationRef.current);
         };
     }, []);
 
-    // Generate random bar heights for waveform
     const [bars] = useState(() => Array.from({ length: 40 }, () => Math.random() * 0.8 + 0.2));
 
     return (
         <div className="flex flex-col w-full max-w-sm">
-            {/* Player Card */}
             <div className="relative rounded-2xl bg-gray-100 dark:bg-[#2a2a2a] p-4 shadow-sm border border-gray-200 dark:border-white/5 overflow-hidden">
                 
-                {/* Header Info */}
                 <div className="flex items-center justify-between mb-3 relative z-10">
                     <div className="flex items-center gap-3">
                         <button 
@@ -95,10 +88,8 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ src, duration = "0:00"
                     <span className="text-xs font-medium text-gray-500 dark:text-gray-400">{duration}</span>
                 </div>
 
-                {/* Waveform Visualization */}
-                <div className="relative h-12 flex items-center gap-[2px] opacity-80">
-                    {/* Background Bars */}
-                    <div className="absolute inset-0 flex items-center justify-between gap-[2px] w-full">
+                <div className="relative h-12 flex items-center gap-0.5 opacity-80">
+                    <div className="absolute inset-0 flex items-center justify-between gap-0.5 w-full">
                         {bars.map((height, i) => (
                             <div 
                                 key={i} 
@@ -108,12 +99,11 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ src, duration = "0:00"
                         ))}
                     </div>
 
-                    {/* Active/Played Bars (Masked by width) */}
                     <div 
-                        className="absolute inset-y-0 left-0 flex items-center justify-between gap-[2px] w-full overflow-hidden transition-[width] duration-75 ease-linear"
+                        className="absolute inset-y-0 left-0 flex items-center justify-between gap-0.5 w-full overflow-hidden transition-[width] duration-75 ease-linear"
                         style={{ width: `${progress}%` }}
                     >
-                         <div className="min-w-full h-full flex items-center justify-between gap-[2px]">
+                         <div className="min-w-full h-full flex items-center justify-between gap-0.5">
                             {bars.map((height, i) => (
                                 <div 
                                     key={`active-${i}`} 
@@ -124,7 +114,6 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ src, duration = "0:00"
                          </div>
                     </div>
 
-                    {/* Playhead Cursor */}
                     <div 
                         className="absolute top-0 bottom-0 w-px bg-black dark:bg-white transition-[left] duration-75 ease-linear z-20"
                         style={{ left: `${progress}%` }}

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { NeoButton } from '@/components/ui/NeoButton';
@@ -14,8 +14,24 @@ import {
     UserIcon
 } from '@/components/Icons';
 import { MemoryBank } from '@/types';
+import { account } from '@/services/appwrite';
+import { API_BASE_URL } from '@/services/backendService';
+import dynamic from 'next/dynamic';
+import { ReportPDF } from '@/components/ReportPDF';
 
-// Mock Data for the Canvas (Simulating a completed session)
+const PDFDownloadLink = dynamic(
+    () => import('@react-pdf/renderer').then((mod) => mod.PDFDownloadLink),
+    {
+        ssr: false,
+        loading: () => (
+            <div className="flex items-center gap-2 opacity-50 cursor-wait">
+                <DownloadIcon className="w-4 h-4 text-gray-800 dark:text-gray-200" />
+                <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">Loading PDF...</span>
+            </div>
+        ),
+    }
+);
+
 const MOCK_DATA: MemoryBank = {
     chiefComplaint: "Severe migraine with light sensitivity and nausea",
     symptomTimeline: [
@@ -38,16 +54,28 @@ const MOCK_DATA: MemoryBank = {
     ]
 };
 
-export default function CanvasPage() {
+function CanvasContent() {
     const [data, setData] = useState<MemoryBank | null>(null);
     const [currentDate, setCurrentDate] = useState<string>("");
+    const [userName, setUserName] = useState<string>("");
     const searchParams = useSearchParams();
     const sessionId = searchParams.get('session_id');
 
     useEffect(() => {
+        const getUser = async () => {
+            try {
+                const user = await account.get();
+                setUserName(user.name);
+            } catch (error) {
+                console.error("Error fetching user:", error);
+            }
+        };
+        getUser();
+    }, []);
+
+    useEffect(() => {
         const fetchData = async () => {
             if (!sessionId) {
-                // Fallback to mock data if no session ID
                 setData(MOCK_DATA);
                 setCurrentDate(new Date().toLocaleDateString('en-US', {
                     weekday: 'long',
@@ -59,13 +87,13 @@ export default function CanvasPage() {
             }
 
             try {
-                const res = await fetch(`http://localhost:8000/session/${sessionId}`);
+                const res = await fetch(`${API_BASE_URL}/session/${sessionId}`);
                 if (!res.ok) {
                     console.error(`Fetch failed with status: ${res.status} ${res.statusText}`);
                     throw new Error(`Failed to fetch session: ${res.status}`);
                 }
 
-                const backendData = await res.json();                // Map backend data to frontend MemoryBank
+                const backendData = await res.json();
                 const mappedData: MemoryBank = {
                     chiefComplaint: backendData.main_complaint || "Not recorded",
                     symptomTimeline: backendData.symptoms.map((s: any) => ({
@@ -81,7 +109,7 @@ export default function CanvasPage() {
                 setData(mappedData);
             } catch (error) {
                 console.error("Error fetching session:", error);
-                setData(MOCK_DATA); // Fallback on error
+                setData(MOCK_DATA);
             }
 
             setCurrentDate(new Date().toLocaleDateString('en-US', {
@@ -104,7 +132,6 @@ export default function CanvasPage() {
     return (
         <div className="min-h-screen bg-[#F9F9F9] dark:bg-[#1e1e1e] p-4 md:p-8 print:p-0 print:bg-white transition-colors duration-300">
 
-            {/* Navigation Bar (Hidden when printing) */}
             <div className="max-w-3xl mx-auto mb-8 flex items-center justify-between print:hidden">
                 <Link href="/dashboard">
                     <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer group">
@@ -116,19 +143,29 @@ export default function CanvasPage() {
                 </Link>
 
                 <div className="flex gap-3">
-                    <NeoButton onClick={handlePrint} width="w-auto" className="px-4 scale-95">
-                        <div className="flex items-center gap-2">
-                            <DownloadIcon className="w-4 h-4 text-gray-800 dark:text-gray-200" />
-                            <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">Print / Save PDF</span>
-                        </div>
-                    </NeoButton>
+                    {data && (
+                        <NeoButton width="w-auto" className="px-4 scale-95">
+                            <PDFDownloadLink
+                                document={<ReportPDF data={data} userName={userName} date={currentDate} />}
+                                fileName={`Prepped_Report_${currentDate.replace(/,/g, '').replace(/ /g, '_')}.pdf`}
+                                className="flex items-center gap-2 w-full h-full"
+                            >
+                                {({ blob, url, loading, error }) => (
+                                    <>
+                                        <DownloadIcon className="w-4 h-4 text-gray-800 dark:text-gray-200" />
+                                        <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                                            {loading ? 'Generating...' : 'Download PDF'}
+                                        </span>
+                                    </>
+                                )}
+                            </PDFDownloadLink>
+                        </NeoButton>
+                    )}
                 </div>
             </div>
 
-            {/* Document Canvas */}
             <div className="max-w-3xl mx-auto bg-white dark:bg-[#2a2a2a] rounded-2xl shadow-xl print:shadow-none print:rounded-none overflow-hidden border border-gray-200 dark:border-[#333]">
 
-                {/* Header */}
                 <div className="bg-gray-50/50 dark:bg-[#252525] p-8 border-b border-gray-200 dark:border-[#333] flex justify-between items-start">
                     <div>
                         <div className="flex items-center gap-3 mb-3">
@@ -140,15 +177,18 @@ export default function CanvasPage() {
                         <p className="text-gray-500 dark:text-gray-400 text-sm">Generated by Prepped Life Agent</p>
                     </div>
                     <div className="text-right">
-                        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-[#333] rounded-lg border border-gray-200 dark:border-[#444] shadow-sm mb-2"></div>
+                        {userName && (
+                            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-[#333] rounded-lg border border-gray-200 dark:border-[#444] shadow-sm mb-2">
+                                <UserIcon className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" />
+                                <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">{userName}</span>
+                            </div>
+                        )}
                         <p className="text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wide">{currentDate}</p>
                     </div>
                 </div>
 
-                {/* Content Body */}
                 <div className="p-8 space-y-10">
 
-                    {/* Section 1: Chief Complaint */}
                     <section>
                         <div className="flex items-center gap-2 mb-4">
                             <ZapIcon className="w-4 h-4 text-gray-400 dark:text-gray-500" />
@@ -161,7 +201,6 @@ export default function CanvasPage() {
                         </div>
                     </section>
 
-                    {/* Section 2: Symptom Timeline */}
                     <section>
                         <div className="flex items-center gap-2 mb-4">
                             <FileIcon className="w-4 h-4 text-gray-400 dark:text-gray-500" />
@@ -187,7 +226,6 @@ export default function CanvasPage() {
                     </section>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        {/* Section 3: Medications */}
                         <section>
                             <div className="flex items-center gap-2 mb-4">
                                 <ShieldIcon className="w-4 h-4 text-gray-400 dark:text-gray-500" />
@@ -206,7 +244,6 @@ export default function CanvasPage() {
                             </div>
                         </section>
 
-                        {/* Section 4: Family History */}
                         <section>
                             <div className="flex items-center gap-2 mb-4">
                                 <UserIcon className="w-4 h-4 text-gray-400 dark:text-gray-500" />
@@ -226,7 +263,6 @@ export default function CanvasPage() {
                         </section>
                     </div>
 
-                    {/* Section 5: Suggested Questions */}
                     <section className="pt-8 border-t border-gray-200 dark:border-[#333]">
                         <div className="flex items-center gap-2 mb-6">
                             <SparklesIcon className="w-4 h-4 text-gray-400 dark:text-gray-500" />
@@ -244,7 +280,6 @@ export default function CanvasPage() {
                         </div>
                     </section>
 
-                    {/* Footer */}
                     <div className="pt-8 mt-4 text-center">
                         <p className="text-[10px] text-gray-400 dark:text-gray-600 uppercase tracking-wider font-medium">
                             Confidential • Generated by AI • Not Medical Advice
@@ -253,5 +288,13 @@ export default function CanvasPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function CanvasPage() {
+    return (
+        <Suspense fallback={<div className="flex items-center justify-center h-screen">Loading...</div>}>
+            <CanvasContent />
+        </Suspense>
     );
 }

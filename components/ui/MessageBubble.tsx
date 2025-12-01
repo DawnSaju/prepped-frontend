@@ -14,17 +14,14 @@ interface MessageBubbleProps {
 export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
   const isUser = message.role === MessageRole.USER;
 
-  // Exact styles from the snippet - Light mode shadows
   const bubbleShadow = "rgba(0, 0, 0, 0) 0px 4px 12px, rgba(0, 0, 0, 0.06) 0px 2px 4px, rgba(255, 255, 255, 0.6) 0px 1px 0px inset, rgba(0, 0, 0, 0.1) 0px -1px 0px inset";
 
-  // Dark mode shadows
   const bubbleShadowDark = "rgba(0, 0, 0, 0) 0px 4px 12px, rgba(0, 0, 0, 0.06) 0px 2px 4px, rgba(255, 255, 255, 0.1) 0px 1px 0px inset, rgba(0, 0, 0, 0.5) 0px -1px 0px inset";
 
   const iconContainerShadow = "rgba(0, 0, 0, 0.2) 0px 3px 8px, rgba(0, 0, 0, 0.15) 0px 1px 3px, rgba(255, 255, 255, 0.4) 0px 1px 2px inset, rgba(0, 0, 0, 0.25) 0px -2px 3px inset";
 
   const containerClass = `flex w-full mb-3 ${isUser ? 'justify-end' : 'justify-start'}`;
 
-  // Shared bubble styles
   const bubbleClass = `
     relative 
     rounded-3xl 
@@ -56,11 +53,9 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
         >
         {message.imageUrl && (
           <div className="mb-3 mt-1 group cursor-pointer relative inline-block">
-            {/* Stacked effect background elements */}
             <div className="absolute top-1 left-1 w-full h-full bg-gray-200 dark:bg-[#4a4a4a] rounded-lg -z-10 rotate-3 transition-transform group-hover:rotate-6"></div>
             <div className="absolute top-0.5 left-0.5 w-full h-full bg-gray-300 dark:bg-[#5a5a5a] rounded-lg -z-20 rotate-1 transition-transform group-hover:rotate-3"></div>
 
-            {/* Main thumbnail */}
             <div className="relative h-16 w-16 md:h-20 md:w-20 rounded-lg overflow-hidden border-2 border-white dark:border-[#3a3a3a] shadow-sm bg-white dark:bg-[#2a2a2a]">
               <img
                 src={message.imageUrl}
@@ -68,11 +63,9 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/10 transition-colors">
-                {/* Optional overlay on hover */}
               </div>
             </div>
 
-            {/* Badge */}
             <div className="absolute -bottom-2 -right-2 bg-white dark:bg-[#3a3a3a] rounded-full p-1 border border-gray-100 dark:border-[#454545] shadow-sm text-gray-500 dark:text-gray-400">
               <PaperclipIcon className="w-3 h-3" />
             </div>

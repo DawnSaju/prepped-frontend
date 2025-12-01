@@ -14,16 +14,13 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, isU
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
-          // Override paragraph to keep our styling but allow inline elements
           p: ({ children }) => <p className="text-[15px] leading-relaxed font-medium mb-2 last:mb-0">{children}</p>,
           
-          // Style code blocks
           code({ className, children, ...props }) {
             const match = /language-(\w+)/.exec(className || '');
             const isInline = !match && !String(children).includes('\n');
             const codeContent = String(children).replace(/\n$/, '');
             
-            // eslint-disable-next-line
             const [copied, setCopied] = useState(false);
 
             const handleCopy = () => {
@@ -72,17 +69,14 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, isU
             );
           },
           
-          // Style lists
           ul: ({ children }) => <ul className="list-disc pl-5 mb-2 space-y-1">{children}</ul>,
           ol: ({ children }) => <ol className="list-decimal pl-5 mb-2 space-y-1">{children}</ol>,
           li: ({ children }) => <li className="text-[15px] leading-relaxed">{children}</li>,
           
-          // Style headings
           h1: ({ children }) => <h1 className="text-xl font-bold mb-3 mt-4 first:mt-0">{children}</h1>,
           h2: ({ children }) => <h2 className="text-lg font-bold mb-2 mt-3 first:mt-0">{children}</h2>,
           h3: ({ children }) => <h3 className="text-base font-bold mb-2 mt-3 first:mt-0">{children}</h3>,
           
-          // Links
           a: ({ href, children }) => (
             <a 
               href={href} 
@@ -94,7 +88,6 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, isU
             </a>
           ),
           
-          // Blockquotes
           blockquote: ({ children }) => (
             <blockquote className="border-l-4 border-gray-300 dark:border-zinc-600 pl-4 my-2 italic text-gray-600 dark:text-gray-400">
               {children}

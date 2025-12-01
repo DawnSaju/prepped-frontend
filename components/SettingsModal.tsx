@@ -7,9 +7,6 @@ import { useTheme } from './ThemeContext';
 interface SettingsModalProps {
     isOpen: boolean;
     onClose: () => void;
-    // systemInstruction and onSave are deprecated but kept for compatibility if needed, 
-    // or we can remove them if we update the parent.
-    // Let's make them optional for now.
     systemInstruction?: string;
     onSave?: (instruction: string) => void;
 }
@@ -56,7 +53,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
     useEffect(() => {
         if (isOpen) {
-            // setInstruction(systemInstruction); // Removed
             setIsAnimating(true);
         } else {
             const timer = setTimeout(() => setIsAnimating(false), 300);
@@ -67,8 +63,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     if (!isOpen && !isAnimating) return null;
 
     const handleSave = () => {
-        // onSave(instruction); // Removed
-        // In a real app, you would save 'creativity' and 'streamResponses' here
         onClose();
     };
 

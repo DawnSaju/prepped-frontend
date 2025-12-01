@@ -15,12 +15,10 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [theme, setTheme] = useState<Theme>('light');
 
   useEffect(() => {
-    // Check localStorage on mount, otherwise default to light
     const savedTheme = localStorage.getItem('theme') as Theme;
     if (savedTheme) {
       setTheme(savedTheme);
     }
-    // Removed system preference check to ensure default is strictly light as requested
   }, []);
 
   useEffect(() => {
