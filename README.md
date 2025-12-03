@@ -1,4 +1,4 @@
-![Prepped Cover](https://github.com/DawnSaju/prepped-frontend/blob/main/public/cover.png?raw=true)
+![Prepped Cover](https://github.com/DawnSaju/prepped-frontend/blob/master/public/cover.png?raw=true)
 
 ### Problem Statement
 
