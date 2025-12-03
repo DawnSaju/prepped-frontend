@@ -23,8 +23,9 @@ Why this matters: Incomplete information can lead to misdiagnosis or delayed tre
 
 ### Demo
 
-Live Demo: [prepped-agentic.vercel.app](url)
-Product Demo Video: [https://www.youtube.com/watch?v=w21QL21tCeU](url)
+- **Live Demo**: [https://prepped-agentic.vercel.app/](https://prepped-agentic.vercel.app/)
+- **Backend FastAPI**: [https://prepped-backend.onrender.com/](https://prepped-backend.onrender.com/)
+- **Product Demo Video**: [https://youtu.be/VHMoi2eT4TM](https://youtu.be/VHMoi2eT4TM)
 
 ### Key Capabilities Demonstrated:
 
@@ -33,17 +34,21 @@ Product Demo Video: [https://www.youtube.com/watch?v=w21QL21tCeU](url)
 - Emergency Mode: A simulated voice call feature for accessible intake.
 
 ### Tech Stack:
-- Frontend: Next.js 14, TypeScript, Tailwind CSS.
+- Frontend: NextJS, TypeScript, Tailwind CSS.
 - Backend: Python, FastAPI.
-- AI Models: Google Gemini 1.5 Flash (for speed) and Pro (for reasoning), accessed via Google AI Studio.
+- AI Models: Google ADK Package for Agent and Google Gemini 2.5 Flash LLM Model.
 - Auth & Database: Appwrite (Google OAuth for secure login, Cloud Database for session persistence).
-- Tools: Custom Python functions (update_profile), Google Search (simulated/real), Twilio (simulated for voice).
+- Tools: Custom Python functions (update_profile), Google Search, Twilio (simulated for voice).
+
+### Deployment:
+- Frontend: NextJS, Deployed on Vercel 
+- Backend: FastAPI, Deployed on Render
 
 ### Process:
 I followed the AgentOps Lifecycle:
 - Prototype: Started with a simple script to test the prompts.
-- Architecture: Decided on the "Split Stack" (Next.js + Python) to enable a rich UI.
-- Security: Implemented Appwrite Authentication to ensure patient data is isolated and secure, adhering to - privacy best practices.
+- Architecture: Decided on the Stack: Next.js + Python to enable a seamless UI.
+- Security: Implemented Appwrite Authentication to ensure patient data is isolated and secure, adhering to the best privacy practices.
 - Refinement: Iterated on the system instructions to ensure the "Nurse" was empathetic and the "Analyst" was objective.
 - Observability: Built the "Glass Box" UI to make the agent's internal state visible to the user.
 
