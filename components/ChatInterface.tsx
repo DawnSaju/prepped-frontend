@@ -397,6 +397,7 @@ export const ChatInterface: React.FC = () => {
             <ProfileModal
                 isOpen={isProfileOpen}
                 onClose={() => setIsProfileOpen(false)}
+                user={user}
             />
 
             <CallModal
