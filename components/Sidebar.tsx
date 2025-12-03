@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ChatSession, MemoryBank } from '../types';
-import { PlusIcon, SettingsIcon, LogOutIcon, XIcon, MessageSquareIcon, ShieldIcon, MoreHorizontalIcon, CodeIcon, PanelLeftIcon, ThingChipIcon, ZapIcon, FileIcon, UserIcon, SparklesIcon, PhoneIcon } from './Icons';
+import { PlusIcon, SettingsIcon, LogOutIcon, XIcon, MessageSquareIcon, ShieldIcon, MoreHorizontalIcon, CodeIcon, PanelLeftIcon, ThingChipIcon, ZapIcon, FileIcon, UserIcon, SparklesIcon, PhoneIcon, TrashIcon } from './Icons';
 import { NeoButton } from './ui/NeoButton';
 
 interface SidebarProps {
@@ -16,6 +16,7 @@ interface SidebarProps {
   onOpenSettings: () => void;
   onOpenProfile?: () => void;
   onOpenCall?: () => void;
+  onDeleteSession?: (sessionId: string) => void;
   memoryBank: MemoryBank;
   user?: any;
 }
@@ -31,10 +32,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onOpenSettings,
   onOpenProfile,
   onOpenCall,
+  onDeleteSession,
   memoryBank,
   user
 }) => {
   const [activeTab, setActiveTab] = useState<'context' | 'history'>('context');
+  const [hoveredSessionId, setHoveredSessionId] = useState<string | null>(null);
   const router = useRouter();
 
   const groupedSessions = sessions.reduce((acc, session) => {
@@ -57,7 +60,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       <aside
         className={`
-          fixed inset-y-0 left-0 z-40 w-[320px] 
+          fixed inset-y-0 left-0 z-40 w-[85vw] sm:w-[320px] max-w-[320px]
           bg-[#F9F9F9] dark:bg-[#1e1e1e]
           border-r border-gray-200 dark:border-[#333] 
           transform transition-transform duration-500 cubic-bezier(0.16, 1, 0.3, 1)
@@ -230,23 +233,49 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         </h3>
                         <div className="space-y-0.5">
                             {categorySessions.map((session) => (
-                            <button
+                            <div
                                 key={session.id}
-                                onClick={() => {
-                                onSelectSession(session.id);
-                                if (window.innerWidth < 768) onClose();
-                                }}
-                                className={`
-                                w-full text-left px-2 py-1.5 rounded-md text-sm transition-all duration-200 flex items-center gap-2.5 group
-                                ${activeSessionId === session.id
-                                    ? 'bg-gray-200/60 dark:bg-[#2a2a2a] text-gray-900 dark:text-white font-medium'
-                                    : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#252525] hover:text-gray-900 dark:hover:text-gray-200'
-                                }
-                                `}
+                                className="relative group/item"
+                                onMouseEnter={() => setHoveredSessionId(session.id)}
+                                onMouseLeave={() => setHoveredSessionId(null)}
                             >
-                                <MessageSquareIcon className={`w-4 h-4 transition-colors ${activeSessionId === session.id ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300'}`} />
-                                <span className="truncate flex-1 text-[13px]">{session.title}</span>
-                            </button>
+                                <button
+                                    onClick={() => {
+                                    onSelectSession(session.id);
+                                    if (window.innerWidth < 768) onClose();
+                                    }}
+                                    className={`
+                                    w-full text-left px-2 py-1.5 rounded-md text-sm transition-all duration-200 flex items-center gap-2.5 group
+                                    ${activeSessionId === session.id
+                                        ? 'bg-gray-200/60 dark:bg-[#2a2a2a] text-gray-900 dark:text-white font-medium'
+                                        : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#252525] hover:text-gray-900 dark:hover:text-gray-200'
+                                    }
+                                    `}
+                                >
+                                    <MessageSquareIcon className={`w-4 h-4 flex-shrink-0 transition-colors ${activeSessionId === session.id ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300'}`} />
+                                    <span className="truncate flex-1 text-[13px] pr-6">{session.title}</span>
+                                </button>
+                                
+                                {/* Delete button */}
+                                {onDeleteSession && (
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            onDeleteSession(session.id);
+                                        }}
+                                        className={`
+                                            absolute right-1 top-1/2 -translate-y-1/2 p-1.5 rounded-md
+                                            text-gray-400 hover:text-red-500 dark:hover:text-red-400
+                                            hover:bg-red-50 dark:hover:bg-red-900/20
+                                            transition-all duration-200
+                                            ${hoveredSessionId === session.id || activeSessionId === session.id ? 'opacity-100' : 'opacity-0'}
+                                        `}
+                                        title="Delete session"
+                                    >
+                                        <TrashIcon className="w-3.5 h-3.5" />
+                                    </button>
+                                )}
+                            </div>
                             ))}
                         </div>
                         </div>

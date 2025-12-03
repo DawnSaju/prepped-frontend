@@ -24,13 +24,13 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
 
   const bubbleClass = `
     relative 
-    rounded-3xl 
-    px-6 py-3 
+    rounded-2xl md:rounded-3xl 
+    px-4 py-2.5 md:px-6 md:py-3 
     border 
     border-gray-300/50 dark:border-[#454545]
     transition-colors 
     duration-300 
-    max-w-[600px]
+    max-w-[85vw] md:max-w-[600px]
     overflow-visible
     ${isUser
       ? 'bg-linear-to-b from-gray-100 to-gray-200 dark:from-[#4a4a4a] dark:to-[#3a3a3a]'

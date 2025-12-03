@@ -166,12 +166,12 @@ const Navbar = () => {
                         {isLoggedIn ? (
                             <div className="hidden md:block">
                                 <NeoButton
-                                    onClick={() => router.push('/dashboard')}
+                                    onClick={() => router.push('/chat')}
                                     width="w-[140px]"
                                     height="h-[40px]"
                                     className="scale-95"
                                 >
-                                    <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">Go to Dashboard</span>
+                                    <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">Go to Chat</span>
                                 </NeoButton>
                             </div>
                         ) : (
@@ -237,11 +237,11 @@ const Navbar = () => {
 
                         {isLoggedIn ? (
                             <NeoButton
-                                onClick={() => router.push('/dashboard')}
+                                onClick={() => router.push('/chat')}
                                 width="w-full"
                                 height="h-[56px]"
                             >
-                                <span className="text-base font-semibold text-gray-800 dark:text-gray-200">Go to Dashboard</span>
+                                <span className="text-base font-semibold text-gray-800 dark:text-gray-200">Go to Chat</span>
                             </NeoButton>
                         ) : (
                             <div className="flex flex-col gap-3">
@@ -275,7 +275,7 @@ export const LandingPage: React.FC = () => {
         <div className="min-h-screen w-full bg-[#FAFAFA] dark:bg-[#2a2a2a] relative font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-500">
             <Navbar />
 
-            <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden flex flex-col items-center justify-center min-h-screen">
+            <section className="relative pt-24 pb-16 md:pt-48 md:pb-32 overflow-hidden flex flex-col items-center justify-center min-h-screen">
                 <BlueprintBackground />
 
                 <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -293,25 +293,25 @@ export const LandingPage: React.FC = () => {
                             <span className="text-xs font-semibold text-gray-600 dark:text-gray-300 tracking-wide uppercase">Agent Active</span>
                         </div>
 
-                        <h1 className="text-6xl md:text-8xl font-medium tracking-tighter text-gray-900 dark:text-white mb-8 leading-[0.9] select-none text-balance">
+                        <h1 className="text-5xl sm:text-6xl md:text-8xl font-medium tracking-tighter text-gray-900 dark:text-white mb-6 md:mb-8 leading-[0.9] select-none text-balance">
                             Your AI <br />
                             <span className="text-transparent bg-clip-text bg-linear-to-b from-gray-500 to-gray-900 dark:from-zinc-400 dark:to-zinc-100">Medical Agent.</span>
                         </h1>
 
-                        <p className="text-xl md:text-2xl text-gray-500 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed font-medium tracking-tight mb-10">
+                        <p className="text-lg md:text-xl lg:text-2xl text-gray-500 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed font-medium tracking-tight mb-8 md:mb-10 px-4">
                             The autonomous clinical assistant that interviews patients, structures history, and prepares briefing documents.
                         </p>
 
-                        <div className="flex items-center gap-4">
+                        <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 w-full sm:w-auto px-4 sm:px-0">
                             <NeoButton
                                 onClick={() => router.push('/login')}
-                                width="w-[200px]"
-                                height="h-[56px]"
+                                width="w-full sm:w-[200px]"
+                                height="h-[52px] sm:h-[56px]"
                             >
-                                <span className="text-lg font-semibold text-gray-800 dark:text-gray-200 tracking-tight">Start Intake</span>
+                                <span className="text-base sm:text-lg font-semibold text-gray-800 dark:text-gray-200 tracking-tight">Start Intake</span>
                             </NeoButton>
 
-                            <button className="px-6 py-3 rounded-xl text-gray-600 dark:text-gray-300 font-medium hover:bg-gray-100 dark:hover:bg-white/5 transition-colors">
+                            <button className="w-full sm:w-auto px-6 py-3 rounded-xl text-gray-600 dark:text-gray-300 font-medium hover:bg-gray-100 dark:hover:bg-white/5 transition-colors">
                                 View Demo
                             </button>
                         </div>
@@ -329,7 +329,7 @@ export const LandingPage: React.FC = () => {
                                         <div className="w-3 h-3 rounded-full bg-green-400/80"></div>
                                     </div>
                                     <div className="ml-4 px-3 py-1 rounded-md bg-white dark:bg-[#333] border border-gray-200 dark:border-[#444] text-[10px] text-gray-400 font-mono flex-1 text-center">
-                                        prepped.health/intake/session-active
+                                        https://prepped-agentic.vercel.app/chat
                                     </div>
                                 </div>
 

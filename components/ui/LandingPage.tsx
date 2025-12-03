@@ -166,12 +166,12 @@ const Navbar = () => {
                         {isLoggedIn ? (
                             <div className="hidden md:block">
                                 <NeoButton
-                                    onClick={() => router.push('/dashboard')}
+                                    onClick={() => router.push('/chat')}
                                     width="w-[140px]"
                                     height="h-[40px]"
                                     className="scale-95"
                                 >
-                                    <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">Go to Dashboard</span>
+                                    <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">Go to Chat</span>
                                 </NeoButton>
                             </div>
                         ) : (
@@ -237,11 +237,11 @@ const Navbar = () => {
 
                         {isLoggedIn ? (
                             <NeoButton
-                                onClick={() => router.push('/dashboard')}
+                                onClick={() => router.push('/chat')}
                                 width="w-full"
                                 height="h-[56px]"
                             >
-                                <span className="text-base font-semibold text-gray-800 dark:text-gray-200">Go to Dashboard</span>
+                                <span className="text-base font-semibold text-gray-800 dark:text-gray-200">Go to Chat</span>
                             </NeoButton>
                         ) : (
                             <div className="flex flex-col gap-3">
@@ -329,7 +329,7 @@ export const LandingPage: React.FC = () => {
                                         <div className="w-3 h-3 rounded-full bg-green-400/80"></div>
                                     </div>
                                     <div className="ml-4 px-3 py-1 rounded-md bg-white dark:bg-[#333] border border-gray-200 dark:border-[#444] text-[10px] text-gray-400 font-mono flex-1 text-center">
-                                        prepped.health/intake/session-active
+                                        https://prepped-agentic.vercel.app/chat
                                     </div>
                                 </div>
 

@@ -132,29 +132,29 @@ function CanvasContent() {
     return (
         <div className="min-h-screen bg-[#F9F9F9] dark:bg-[#1e1e1e] p-4 md:p-8 print:p-0 print:bg-white transition-colors duration-300">
 
-            <div className="max-w-3xl mx-auto mb-8 flex items-center justify-between print:hidden">
-                <Link href="/dashboard">
-                    <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer group">
-                        <div className="p-2 bg-white dark:bg-[#2a2a2a] rounded-full shadow-sm border border-gray-200 dark:border-[#333] group-hover:border-gray-300 dark:group-hover:border-[#444] transition-colors">
-                            <ArrowLeftIcon className="w-5 h-5" />
+            <div className="max-w-3xl mx-auto mb-4 md:mb-8 flex items-center justify-between print:hidden">
+                <Link href="/chat">
+                    <div className="flex items-center gap-1.5 md:gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer group">
+                        <div className="p-1.5 md:p-2 bg-white dark:bg-[#2a2a2a] rounded-full shadow-sm border border-gray-200 dark:border-[#333] group-hover:border-gray-300 dark:group-hover:border-[#444] transition-colors">
+                            <ArrowLeftIcon className="w-4 h-4 md:w-5 md:h-5" />
                         </div>
-                        <span className="font-medium text-sm">Back to Chat</span>
+                        <span className="font-medium text-xs md:text-sm hidden sm:inline">Back to Chat</span>
                     </div>
                 </Link>
 
-                <div className="flex gap-3">
+                <div className="flex gap-2 md:gap-3">
                     {data && (
-                        <NeoButton width="w-auto" className="px-4 scale-95">
+                        <NeoButton width="w-auto" className="px-2 md:px-4 scale-90 md:scale-95">
                             <PDFDownloadLink
                                 document={<ReportPDF data={data} userName={userName} date={currentDate} />}
                                 fileName={`Prepped_Report_${currentDate.replace(/,/g, '').replace(/ /g, '_')}.pdf`}
-                                className="flex items-center gap-2 w-full h-full"
+                                className="flex items-center gap-1.5 md:gap-2 w-full h-full"
                             >
                                 {({ blob, url, loading, error }) => (
                                     <>
-                                        <DownloadIcon className="w-4 h-4 text-gray-800 dark:text-gray-200" />
-                                        <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">
-                                            {loading ? 'Generating...' : 'Download PDF'}
+                                        <DownloadIcon className="w-3.5 h-3.5 md:w-4 md:h-4 text-gray-800 dark:text-gray-200" />
+                                        <span className="text-xs md:text-sm font-semibold text-gray-800 dark:text-gray-200">
+                                            {loading ? 'PDF...' : 'Download'}
                                         </span>
                                     </>
                                 )}
@@ -166,17 +166,17 @@ function CanvasContent() {
 
             <div className="max-w-3xl mx-auto bg-white dark:bg-[#2a2a2a] rounded-2xl shadow-xl print:shadow-none print:rounded-none overflow-hidden border border-gray-200 dark:border-[#333]">
 
-                <div className="bg-gray-50/50 dark:bg-[#252525] p-8 border-b border-gray-200 dark:border-[#333] flex justify-between items-start">
+                <div className="bg-gray-50/50 dark:bg-[#252525] p-4 md:p-8 border-b border-gray-200 dark:border-[#333] flex flex-col sm:flex-row justify-between items-start gap-4">
                     <div>
-                        <div className="flex items-center gap-3 mb-3">
-                            <div className="w-8 h-8 bg-gray-900 dark:bg-white rounded-lg flex items-center justify-center shadow-sm">
-                                <ShieldIcon className="w-5 h-5 text-white dark:text-black" />
+                        <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
+                            <div className="w-7 h-7 md:w-8 md:h-8 bg-gray-900 dark:bg-white rounded-lg flex items-center justify-center shadow-sm">
+                                <ShieldIcon className="w-4 h-4 md:w-5 md:h-5 text-white dark:text-black" />
                             </div>
-                            <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Doctor Briefing</h1>
+                            <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Doctor Briefing</h1>
                         </div>
-                        <p className="text-gray-500 dark:text-gray-400 text-sm">Generated by Prepped Life Agent</p>
+                        <p className="text-gray-500 dark:text-gray-400 text-xs md:text-sm">Generated by Prepped Life Agent</p>
                     </div>
-                    <div className="text-right">
+                    <div className="text-left sm:text-right">
                         {userName && (
                             <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-[#333] rounded-lg border border-gray-200 dark:border-[#444] shadow-sm mb-2">
                                 <UserIcon className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" />
@@ -187,15 +187,15 @@ function CanvasContent() {
                     </div>
                 </div>
 
-                <div className="p-8 space-y-10">
+                <div className="p-4 md:p-8 space-y-6 md:space-y-10">
 
                     <section>
                         <div className="flex items-center gap-2 mb-4">
                             <ZapIcon className="w-4 h-4 text-gray-400 dark:text-gray-500" />
                             <h2 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Chief Complaint</h2>
                         </div>
-                        <div className="bg-gray-50 dark:bg-[#252525] border border-gray-200 dark:border-[#333] rounded-xl p-6 shadow-sm">
-                            <p className="text-lg font-medium text-gray-900 dark:text-white leading-relaxed">
+                        <div className="bg-gray-50 dark:bg-[#252525] border border-gray-200 dark:border-[#333] rounded-xl p-4 md:p-6 shadow-sm">
+                            <p className="text-base md:text-lg font-medium text-gray-900 dark:text-white leading-relaxed">
                                 "{data.chiefComplaint}"
                             </p>
                         </div>

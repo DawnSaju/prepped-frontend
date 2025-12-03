@@ -4,7 +4,7 @@ import { NeoButton } from './NeoButton';
 import { useTheme } from '../ThemeContext';
 
 interface ChatInputProps {
-    onSendMessage: (message: string, media?: string, isImageGen?: boolean) => void;
+    onSendMessage: (message: string, media?: string) => void;
     isLoading: boolean;
     onStop?: () => void;
 }
@@ -14,13 +14,10 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading, 
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const [isRecording, setIsRecording] = useState(false);
     const [recordingDuration, setRecordingDuration] = useState(0);
-    const [mode, setMode] = useState<'text' | 'image'>('text');
 
-    const [aspectRatio, setAspectRatio] = useState<'square' | 'wide' | 'portrait'>('square');
     const { theme } = useTheme();
 
     const inputRef = useRef<HTMLInputElement>(null);
-    const textAreaRef = useRef<HTMLTextAreaElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const chunksRef = useRef<Blob[]>([]);
@@ -34,7 +31,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading, 
         }
 
         if ((inputValue.trim() || selectedImage) && !isLoading) {
-            onSendMessage(inputValue, selectedImage || undefined, mode === 'image');
+            onSendMessage(inputValue, selectedImage || undefined);
             setInputValue('');
             setSelectedImage(null);
         }
@@ -68,7 +65,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading, 
                 const reader = new FileReader();
                 reader.onloadend = () => {
                     const base64Audio = reader.result as string;
-                    onSendMessage('', base64Audio, false);
+                    onSendMessage('', base64Audio);
                 };
                 reader.readAsDataURL(blob);
                 stream.getTracks().forEach(track => track.stop());
@@ -98,14 +95,9 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading, 
         }
     };
 
-    const toggleMode = () => {
-        setMode(prev => prev === 'text' ? 'image' : 'text');
-    };
-
     useEffect(() => {
-        if (mode === 'text') inputRef.current?.focus();
-        else textAreaRef.current?.focus();
-    }, [mode]);
+        inputRef.current?.focus();
+    }, []);
 
     useEffect(() => {
         return () => {
@@ -123,53 +115,16 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading, 
     return (
         <form
             onSubmit={handleSubmit}
-            className={`
-          relative w-full 
-          bg-linear-to-b from-gray-100 to-gray-200 dark:from-[#3a3a3a] dark:to-[#3a3a3a]
-          rounded-3xl
-          border border-gray-300/50 dark:border-[#454545]
-          flex flex-col
-          transition-all duration-300
-          ${mode === 'image' ? 'rounded-4xl overflow-hidden' : ''}
-        `}
+            className="
+                relative w-full 
+                bg-linear-to-b from-gray-100 to-gray-200 dark:from-[#3a3a3a] dark:to-[#3a3a3a]
+                rounded-2xl md:rounded-3xl
+                border border-gray-300/50 dark:border-[#454545]
+                flex flex-col
+                transition-all duration-300
+            "
             style={{ boxShadow: inputContainerShadow }}
         >
-            {mode === 'image' && (
-                <div className="px-6 pt-4 pb-2 flex items-center justify-between border-b border-gray-200 dark:border-[#454545]">
-                    <div className="flex items-center gap-2">
-                        <span className="text-xs font-mono font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-widest">
-                            Visual Synthesis
-                        </span>
-                        <div className="w-1.5 h-1.5 rounded-full bg-gray-900 dark:bg-white animate-pulse"></div>
-                    </div>
-
-                    <div className="flex gap-1 p-1 bg-gray-200 dark:bg-[#2a2a2a] rounded-lg">
-                        {(['square', 'wide', 'portrait'] as const).map((ratio) => (
-                            <button
-                                key={ratio}
-                                type="button"
-                                onClick={() => setAspectRatio(ratio)}
-                                className={`
-                                p-1.5 rounded-md transition-all
-                                ${aspectRatio === ratio
-                                        ? 'bg-white dark:bg-[#4a4a4a] text-black dark:text-white shadow-sm'
-                                        : 'text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200'
-                                    }
-                            `}
-                                title={ratio}
-                            >
-                                <div className={`
-                                border-2 border-current rounded-sm
-                                ${ratio === 'square' ? 'w-3.5 h-3.5' : ''}
-                                ${ratio === 'wide' ? 'w-4 h-2.5' : ''}
-                                ${ratio === 'portrait' ? 'w-2.5 h-4' : ''}
-                            `}></div>
-                            </button>
-                        ))}
-                    </div>
-                </div>
-            )}
-
             {selectedImage && (
                 <div className="px-4 pt-4 pb-0 animate-in slide-in-from-bottom-2 fade-in duration-300">
                     <div className="relative inline-block">
@@ -189,41 +144,18 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading, 
                 </div>
             )}
 
-            <div className="flex items-start gap-2 p-2">
-                <div className="relative pt-1">
-                    <input
-                        type="file"
-                        ref={fileInputRef}
-                        onChange={handleFileSelect}
-                        accept="image/*"
-                        className="hidden"
-                    />
-                    <NeoButton
-                        onClick={toggleMode}
-                        width="w-11"
-                        height="h-11"
-                        type="button"
-                        className="scale-90"
-                        active={mode === 'image'}
-                        disabled={isLoading || isRecording}
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`w-5 h-5 ${mode === 'image' ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'}`}>
-                            <path d="M12 3V5" />
-                            <path d="M12 19V21" />
-                            <path d="M3 12H5" />
-                            <path d="M19 12H21" />
-                            <path d="M18.364 5.636L16.95 7.05" />
-                            <path d="M7.05 16.95L5.636 18.364" />
-                            <path d="M16.95 16.95L18.364 18.364" />
-                            <path d="M5.636 5.636L7.05 7.05" />
-                            <circle cx="12" cy="12" r="3" />
-                        </svg>
-                    </NeoButton>
-                </div>
+            <div className="flex items-center gap-2 p-2">
+                <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileSelect}
+                    accept="image/*"
+                    className="hidden"
+                />
 
-                <div className="flex-1 min-h-14 flex flex-col justify-center">
+                <div className="flex-1 min-h-12 flex items-center">
                     {isRecording ? (
-                        <div className="flex items-center justify-between px-4 h-full animate-pulse">
+                        <div className="flex items-center justify-between px-4 w-full animate-pulse">
                             <div className="flex items-center gap-3">
                                 <div className="w-3 h-3 bg-red-500 rounded-full animate-bounce"></div>
                                 <span className="text-gray-900 dark:text-white font-mono font-medium">{formatTime(recordingDuration)}</span>
@@ -237,62 +169,34 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading, 
                                 <StopCircleIcon className="w-6 h-6" />
                             </button>
                         </div>
-                    ) : mode === 'image' ? (
-                        <textarea
-                            ref={textAreaRef}
-                            value={inputValue}
-                            onChange={(e) => setInputValue(e.target.value)}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter' && !e.shiftKey) {
-                                    e.preventDefault();
-                                    handleSubmit();
-                                }
-                            }}
-                            placeholder="Describe the image structure, lighting, and composition..."
-                            disabled={isLoading}
-                            className="
-                            w-full 
-                            bg-transparent 
-                            border-none 
-                            outline-none 
-                            text-base font-mono
-                            text-gray-900 dark:text-gray-100
-                            placeholder-gray-400 dark:placeholder-gray-500
-                            px-2 py-3
-                            min-h-20
-                            resize-none
-                        "
-                        />
                     ) : (
                         <input
                             ref={inputRef}
                             type="text"
                             value={inputValue}
                             onChange={(e) => setInputValue(e.target.value)}
-                            placeholder="Ask Anything"
+                            placeholder="Describe your symptoms..."
                             disabled={isLoading}
-                            className="w-full bg-transparent border-none outline-none text-lg text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 px-2 h-full"
+                            className="w-full bg-transparent border-none outline-none text-lg text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 px-4 h-full"
                         />
                     )}
                 </div>
 
-                <div className="flex items-start gap-1 pt-1">
-                    {mode === 'text' && !inputValue.trim() && !isRecording && (
-                        <div className="relative">
-                            <NeoButton
-                                onClick={() => fileInputRef.current?.click()}
-                                width="w-11"
-                                height="h-11"
-                                type="button"
-                                className="scale-90"
-                                disabled={isLoading}
-                            >
-                                <PaperclipIcon className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-                            </NeoButton>
-                        </div>
+                <div className="flex items-center gap-1">
+                    {!isRecording && (
+                        <NeoButton
+                            onClick={() => fileInputRef.current?.click()}
+                            width="w-11"
+                            height="h-11"
+                            type="button"
+                            className="scale-90"
+                            disabled={isLoading}
+                        >
+                            <PaperclipIcon className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                        </NeoButton>
                     )}
 
-                    {!inputValue.trim() && !selectedImage && !isRecording && !isLoading && mode === 'text' ? (
+                    {!inputValue.trim() && !selectedImage && !isRecording && !isLoading ? (
                         <NeoButton
                             type="button"
                             onClick={startRecording}
@@ -302,18 +206,16 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading, 
                         >
                             <MicIcon className="w-5 h-5 text-gray-900 dark:text-gray-100" />
                         </NeoButton>
-                    ) : (
+                    ) : !isRecording && (
                         <NeoButton
                             type="submit"
-                            disabled={(!inputValue.trim() && !selectedImage && !isLoading) || isRecording}
-                            width={mode === 'image' ? "w-24" : "w-11"}
+                            disabled={(!inputValue.trim() && !selectedImage && !isLoading)}
+                            width="w-11"
                             height="h-11"
                             className="scale-90"
                         >
                             {isLoading ? (
                                 <SquareIcon className="w-4 h-4 text-gray-900 dark:text-gray-100 fill-current" />
-                            ) : mode === 'image' ? (
-                                <span className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider">Generate</span>
                             ) : (
                                 <ArrowUpIcon className="w-5 h-5 text-gray-900 dark:text-gray-100 drop-shadow-sm" />
                             )}
@@ -323,4 +225,4 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading, 
             </div>
         </form>
     );
-};
+};;

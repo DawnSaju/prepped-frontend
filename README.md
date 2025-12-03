@@ -1,3 +1,5 @@
+![Prepped Cover](https://github.com/DawnSaju/prepped-frontend/blob/main/public/cover.png?raw=true)
+
 ### Problem Statement
 
 Patients frequently struggle to communicate effectively during short medical appointments. Anxiety, low medical literacy, or simply forgetting details can lead to incomplete histories. Doctors, often pressed for time, must spend valuable minutes gathering basic information rather than diagnosing.
@@ -47,5 +49,5 @@ I followed the AgentOps Lifecycle:
 
 ### If I had more time, this is what I'd do
 
-- MCP Integration: Build an MCP server to push the "Doctor Briefing" directly into a hospital's Electronic - - - Health Record system (e.g., Epic or Cerner) via FHIR standards.
+- MCP Integration: Build an MCP server to push the "Doctor Briefing" directly into a hospital's Electronic Health Record system (e.g., Epic or Cerner) via FHIR standards.
 - Multilingual Support: Add a translation layer so the interview can happen in the patient's native language, but the report is generated in English for the doctor.

@@ -31,7 +31,8 @@ export const sendMessageToBackend = async (
         });
 
         if (!res.ok) {
-            throw new Error(`Backend error: ${res.statusText}`);
+            console.error(`Backend error: ${res.status} ${res.statusText}`);
+            throw new Error('CONNECTION_ERROR');
         }
 
         const data: ChatResponse = await res.json();
@@ -60,7 +61,7 @@ export const sendMessageToBackend = async (
 
     } catch (error) {
         console.error("API Call Failed:", error);
-        throw error;
+        throw new Error('CONNECTION_ERROR');
     }
 };
 
@@ -69,12 +70,29 @@ export const getSessions = async (userId?: string): Promise<ChatSession[]> => {
         const url = userId ? `${API_BASE_URL}/sessions?user_id=${userId}` : `${API_BASE_URL}/sessions`;
         const res = await fetch(url);
         if (!res.ok) {
-            throw new Error(`Backend error: ${res.statusText}`);
+            console.error(`getSessions error: ${res.status} ${res.statusText}`);
+            throw new Error('CONNECTION_ERROR');
         }
         return await res.json();
     } catch (error) {
         console.error("Failed to fetch sessions:", error);
-        return [];
+        throw new Error('CONNECTION_ERROR');
+    }
+};
+
+export const deleteSession = async (sessionId: string): Promise<boolean> => {
+    try {
+        const res = await fetch(`${API_BASE_URL}/session/${sessionId}`, {
+            method: 'DELETE',
+        });
+        if (!res.ok) {
+            console.error(`deleteSession error: ${res.status} ${res.statusText}`);
+            throw new Error('CONNECTION_ERROR');
+        }
+        return true;
+    } catch (error) {
+        console.error("Failed to delete session:", error);
+        throw new Error('CONNECTION_ERROR');
     }
 };
 
@@ -82,7 +100,8 @@ export const getSession = async (sessionId: string): Promise<{ memoryBank: Memor
     try {
         const res = await fetch(`${API_BASE_URL}/session/${sessionId}`);
         if (!res.ok) {
-            throw new Error(`Backend error: ${res.statusText}`);
+            console.error(`getSession error: ${res.status} ${res.statusText}`);
+            throw new Error('CONNECTION_ERROR');
         }
         const data = await res.json();
         
@@ -111,6 +130,6 @@ export const getSession = async (sessionId: string): Promise<{ memoryBank: Memor
         return { memoryBank, messages };
     } catch (error) {
         console.error("Failed to fetch session:", error);
-        throw error;
+        throw new Error('CONNECTION_ERROR');
     }
 };

@@ -15,14 +15,14 @@ export const AuthInput = React.forwardRef<HTMLInputElement, React.InputHTMLAttri
         ref={ref}
         className="
           w-full 
-          h-16 
+          h-14 md:h-16 
           bg-linear-to-b from-gray-100 to-gray-200 
           dark:from-[#333333] dark:to-[#333333]
           rounded-full 
           border 
           border-gray-300/50 dark:border-[#454545]
-          px-8
-          text-lg
+          px-6 md:px-8
+          text-base md:text-lg
           text-gray-900 dark:text-white
           placeholder-gray-400 dark:placeholder-gray-500
           focus:outline-none
@@ -46,13 +46,13 @@ export const AuthButton = ({ children, onClick, isLoading, className = "" }: { c
       disabled={isLoading}
       className={`
         w-full 
-        h-16 
+        h-14 md:h-16 
         rounded-full 
         bg-linear-to-b from-gray-900 to-black 
         dark:from-[#5a5a5a] dark:to-[#404040]
         text-white
         font-medium
-        text-lg
+        text-base md:text-lg
         flex 
         items-center 
         justify-center 

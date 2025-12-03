@@ -5,16 +5,15 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Message, MessageRole, MessageType, ChatSession } from '../types';
 import { MessageBubble } from './ui/MessageBubble';
 import { ChatInput } from './ui/ChatInput';
-import { NeoButton } from './ui/NeoButton';
-import { sendMessageToBackend, getSessions, getSession } from '../services/backendService';
+import { sendMessageToBackend, getSessions, getSession, deleteSession } from '../services/backendService';
 import { account } from '../services/appwrite';
 import { PanelLeftIcon, ThingChipIcon, ChevronDownIcon, CheckIcon, ThingRetroMacIcon, CodeIcon, ThingCubeIcon, ShareIcon } from './Icons';
 import { Sidebar } from './Sidebar';
 import { SettingsModal } from './SettingsModal';
 import { ProfileModal } from './ProfileModal';
 import { CallModal } from './CallModal';
-import { SharePopover } from './ShareModal';
-import { DocumentTitle } from './DocumentTitle';
+import { ConfirmationModal } from './ConfirmationModal';
+import { ConnectionErrorModal } from './ConnectionErrorModal';
 import { MemoryBank } from '../types';
 
 const MODELS = [
@@ -46,6 +45,7 @@ const STARTER_PROMPTS = [
 export const ChatInterface: React.FC = () => {
     const [messages, setMessages] = useState<Message[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [loadingState, setLoadingState] = useState<'transcribing' | 'thinking' | null>(null);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
     const [sessions, setSessions] = useState<ChatSession[]>([]);
@@ -62,8 +62,13 @@ export const ChatInterface: React.FC = () => {
                 localStorage.setItem('isLoggedIn', 'true');
                 localStorage.setItem('userId', user.$id);
                 
-                const fetchedSessions = await getSessions(user.$id);
-                setSessions(fetchedSessions);
+                try {
+                    const fetchedSessions = await getSessions(user.$id);
+                    setSessions(fetchedSessions);
+                } catch (backendError) {
+                    console.error("Backend connection failed during init:", backendError);
+                    setIsBackendError(true);
+                }
             } catch (error) {
                 if (localStorage.getItem('isLoggedIn')) {
                     localStorage.removeItem('isLoggedIn');
@@ -80,7 +85,7 @@ export const ChatInterface: React.FC = () => {
     useEffect(() => {
         if (!sessionIdParam) {
             const newId = Date.now().toString();
-            router.replace(`/dashboard?session_id=${newId}`);
+            router.replace(`/chat?session_id=${newId}`);
         } else {
             setActiveSessionId(sessionIdParam);
 
@@ -92,6 +97,7 @@ export const ChatInterface: React.FC = () => {
                     setMemoryBank(loadedMemory);
                 } catch (error) {
                     console.error("Error loading session:", error);
+                    setIsBackendError(true);
                     setMessages([]);
                 } finally {
                     setIsLoading(false);
@@ -110,6 +116,11 @@ export const ChatInterface: React.FC = () => {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [isCallOpen, setIsCallOpen] = useState(false);
     const [isShareOpen, setIsShareOpen] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [isBackendError, setIsBackendError] = useState(false);
+    const [isRetrying, setIsRetrying] = useState(false);
     const [systemInstruction, setSystemInstruction] = useState("You are 'Prepped', a medical intake advocate. Your role is to conduct a structured interview to prepare the patient for a doctor's visit. You are warm, professional, and non-judgmental. Do NOT diagnose. Do NOT suggest medications. If the user mentions a life-threatening emergency (chest pain, trouble breathing), immediately tell them to call emergency services. Ask one question at a time. Start by asking 'What brings you in today?'.");
 
     const [memoryBank, setMemoryBank] = useState<MemoryBank>({
@@ -213,10 +224,15 @@ export const ChatInterface: React.FC = () => {
 
         setMessages((prev) => [...prev, newMessage]);
         setIsLoading(true);
+        setLoadingState(audioData ? 'transcribing' : 'thinking');
         streamRef.current = true;
 
         try {
             const aiMessageId = (Date.now() + 1).toString();
+
+            if (audioData) {
+                setTimeout(() => setLoadingState('thinking'), 1500);
+            }
 
             const userId = localStorage.getItem('userId') || undefined;
             const response = await sendMessageToBackend(content, activeSessionId || 'default', audioData, userId);
@@ -238,25 +254,33 @@ export const ChatInterface: React.FC = () => {
             setMessages((prev) => [...prev, aiMessage]);
 
             setMemoryBank(response.memoryBank);
+            
+            if (userId) {
+                const updatedSessions = await getSessions(userId);
+                setSessions(prev => {
+                    const currentSession = prev.find(s => s.id === activeSessionId);
+                    const backendHasCurrentSession = updatedSessions.some(s => s.id === activeSessionId);
+                    
+                    if (currentSession && !backendHasCurrentSession) {
+                        const updatedCurrentSession = {
+                            ...currentSession,
+                            title: response.memoryBank.chiefComplaint || currentSession.title,
+                            preview: `Status: interview`
+                        };
+                        return [updatedCurrentSession, ...updatedSessions.filter(s => s.id !== activeSessionId)];
+                    }
+                    
+                    return updatedSessions;
+                });
+            }
 
         } catch (error) {
             console.error('Failed to get response', error);
-            const errorMessage: Message = {
-                id: Date.now().toString(),
-                role: MessageRole.ASSISTANT,
-                content: "I'm having trouble connecting to the server. Please make sure the backend is running.",
-                type: MessageType.TEXT,
-                timestamp: Date.now(),
-            };
-            setMessages((prev) => [...prev, errorMessage]);
+            setIsBackendError(true);
         } finally {
             setIsLoading(false);
+            setLoadingState(null);
         }
-    };
-
-    const handleStopGeneration = () => {
-        streamRef.current = false;
-        setIsLoading(false);
     };
 
     const handleNewChat = () => {
@@ -268,15 +292,39 @@ export const ChatInterface: React.FC = () => {
             preview: ''
         };
         setSessions(prev => [newSession, ...prev]);
-        router.push(`/dashboard?session_id=${newSessionId}`);
+        router.push(`/chat?session_id=${newSessionId}`);
         if (window.innerWidth < 768) setIsSidebarOpen(false);
     };
 
     const handleSelectSession = (sessionId: string) => {
-        router.push(`/dashboard?session_id=${sessionId}`);
+        router.push(`/chat?session_id=${sessionId}`);
     };
 
+    const handleDeleteSession = (sessionId: string) => {
+        setSessionToDelete(sessionId);
+        setIsDeleteModalOpen(true);
+    };
 
+    const confirmDeleteSession = async () => {
+        if (!sessionToDelete) return;
+        
+        setIsDeleting(true);
+        try {
+            const success = await deleteSession(sessionToDelete);
+            if (success) {
+                setSessions(prev => prev.filter(s => s.id !== sessionToDelete));
+                if (sessionToDelete === activeSessionId) {
+                    handleNewChat();
+                }
+            }
+        } catch (error) {
+            console.error("Failed to delete session:", error);
+        } finally {
+            setIsDeleting(false);
+            setIsDeleteModalOpen(false);
+            setSessionToDelete(null);
+        }
+    };
 
     const handleLogout = async () => {
         try {
@@ -287,6 +335,30 @@ export const ChatInterface: React.FC = () => {
         localStorage.removeItem('isLoggedIn');
         localStorage.removeItem('userId');
         router.push('/');
+    };
+
+    const handleRetryConnection = async () => {
+        setIsRetrying(true);
+        try {
+            const userId = localStorage.getItem('userId');
+            if (userId) {
+                await getSessions(userId);
+            } else if (activeSessionId) {
+                await getSession(activeSessionId);
+            }
+            
+            setIsBackendError(false);
+            
+            if (activeSessionId) {
+                const { messages: loadedMessages, memoryBank: loadedMemory } = await getSession(activeSessionId);
+                setMessages(loadedMessages);
+                setMemoryBank(loadedMemory);
+            }
+        } catch (error) {
+            console.error("Retry failed:", error);
+        } finally {
+            setIsRetrying(false);
+        }
     };
 
     return (
@@ -312,6 +384,7 @@ export const ChatInterface: React.FC = () => {
                     setIsCallOpen(true);
                     if (window.innerWidth < 768) setIsSidebarOpen(false);
                 }}
+                onDeleteSession={handleDeleteSession}
                 memoryBank={memoryBank}
                 user={user}
             />
@@ -330,6 +403,21 @@ export const ChatInterface: React.FC = () => {
                 isOpen={isCallOpen}
                 onClose={() => setIsCallOpen(false)}
                 sessionId={activeSessionId}
+            />
+
+            <ConfirmationModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={confirmDeleteSession}
+                title="Delete Session"
+                message="Are you sure you want to delete this intake session? This action cannot be undone."
+                isLoading={isDeleting}
+            />
+
+            <ConnectionErrorModal
+                isOpen={isBackendError}
+                onRetry={handleRetryConnection}
+                isRetrying={isRetrying}
             />
 
             <div
@@ -355,6 +443,37 @@ export const ChatInterface: React.FC = () => {
                             {messages.map((msg, idx) => (
                                 <MessageBubble key={msg.id || idx} message={msg} />
                             ))}
+                            
+                            {/* Loading indicator */}
+                            {isLoading && loadingState && (
+                                <div className="flex items-start gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                    <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-[#3a3a3a] border border-gray-200 dark:border-[#454545] flex items-center justify-center shrink-0">
+                                        <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-pulse"></div>
+                                    </div>
+                                    <div className="px-4 py-3 rounded-2xl bg-white dark:bg-[#3a3a3a] border border-gray-200 dark:border-[#454545]">
+                                        <div className="flex items-center gap-2">
+                                            {loadingState === 'transcribing' ? (
+                                                <>
+                                                    <svg className="w-4 h-4 text-blue-500 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                                                    </svg>
+                                                    <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">Transcribing audio...</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <div className="flex gap-1">
+                                                        <div className="w-1.5 h-1.5 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                                                        <div className="w-1.5 h-1.5 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                                                        <div className="w-1.5 h-1.5 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                                                    </div>
+                                                    <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">Thinking...</span>
+                                                </>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
                             {messages.length === 0 && (
                                 <div className="flex flex-col items-center justify-center h-full px-6 relative overflow-hidden">
                                     <div className="absolute inset-0 pointer-events-none opacity-[0.03] select-none flex items-center justify-center">
@@ -372,36 +491,36 @@ export const ChatInterface: React.FC = () => {
                                             <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400 tracking-widest uppercase">System Ready</span>
                                         </div>
 
-                                        <h2 className="text-5xl md:text-6xl font-semibold tracking-tighter text-gray-900 dark:text-white mb-6 leading-[0.95] animate-in fade-in zoom-in-95 duration-700 delay-100">
+                                        <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tighter text-gray-900 dark:text-white mb-4 md:mb-6 leading-[0.95] animate-in fade-in zoom-in-95 duration-700 delay-100">
                                             Medical <br />
                                             <span className="text-transparent bg-clip-text bg-linear-to-b from-gray-400 to-gray-800 dark:from-zinc-400 dark:to-zinc-100">Intake.</span>
                                         </h2>
 
-                                        <p className="text-lg text-gray-500 dark:text-gray-400 leading-relaxed font-medium max-w-lg mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
+                                        <p className="text-base md:text-lg text-gray-500 dark:text-gray-400 leading-relaxed font-medium max-w-lg mx-auto px-4 md:px-0 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
                                             I'm here to help prepare you for your doctor's visit.
                                             Select a topic to begin the intake process.
                                         </p>
                                     </div>
 
-                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 w-full max-w-4xl relative z-10 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300">
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-5 w-full max-w-4xl px-2 md:px-0 relative z-10 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300">
                                         {STARTER_PROMPTS.map((starter, idx) => (
                                             <button
                                                 key={idx}
                                                 onClick={() => handleSendMessage(starter.prompt)}
-                                                className="group relative flex flex-col items-start p-6 text-left h-full min-h-[180px] rounded-3xl bg-white dark:bg-[#3a3a3a] border border-gray-200/80 dark:border-[#454545] shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.06)] hover:border-gray-300/80 dark:hover:border-gray-500 hover:-translate-y-1 transition-all duration-500 ease-out overflow-hidden"
+                                                className="group relative flex flex-col items-start p-4 md:p-6 text-left h-full min-h-[140px] md:min-h-[180px] rounded-2xl md:rounded-3xl bg-white dark:bg-[#3a3a3a] border border-gray-200/80 dark:border-[#454545] shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.06)] hover:border-gray-300/80 dark:hover:border-gray-500 hover:-translate-y-1 transition-all duration-500 ease-out overflow-hidden"
                                             >
                                                 <div className="absolute inset-0 bg-linear-to-br from-gray-50 to-transparent dark:from-white/5 dark:to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
                                                 <div className="relative z-10 w-full h-full flex flex-col">
-                                                    <div className="w-12 h-12 rounded-2xl bg-gray-50 dark:bg-[#2a2a2a] border border-gray-100 dark:border-[#454545] flex items-center justify-center mb-auto text-gray-900 dark:text-white group-hover:scale-110 transition-transform duration-500">
+                                                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-gray-50 dark:bg-[#2a2a2a] border border-gray-100 dark:border-[#454545] flex items-center justify-center mb-auto text-gray-900 dark:text-white group-hover:scale-110 transition-transform duration-500">
                                                         {starter.icon}
                                                     </div>
 
-                                                    <div className="mt-4">
-                                                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 tracking-tight">
+                                                    <div className="mt-3 md:mt-4">
+                                                        <h3 className="text-base md:text-lg font-semibold text-gray-900 dark:text-white mb-1 md:mb-2 tracking-tight">
                                                             {starter.title}
                                                         </h3>
-                                                        <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed font-medium">
+                                                        <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400 leading-relaxed font-medium">
                                                             {starter.description}
                                                         </p>
                                                     </div>
@@ -414,8 +533,8 @@ export const ChatInterface: React.FC = () => {
                             <div ref={messagesEndRef} />
                         </div>
 
-                        <div className="p-4 border-t border-gray-200 dark:border-[#454545] bg-white dark:bg-[#2a2a2a]">
-                            <div className="max-w-3xl mx-auto w-full">
+                        <div className="p-2 md:p-4 border-t border-gray-200 dark:border-[#454545] bg-white dark:bg-[#2a2a2a] safe-area-bottom">
+                            <div className="max-w-3xl mx-auto w-full pb-4">
                                 <ChatInput
                                     onSendMessage={handleSendMessage}
                                     isLoading={isLoading}

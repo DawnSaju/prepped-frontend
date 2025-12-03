@@ -6,8 +6,26 @@ import { ThemeProvider } from "@/components/ThemeContext";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Life Agent",
-  description: "Life Agent - AI Agent for your daily tasks",
+  title: "Prepped Agent",
+  description: "The autonomous clinical AI Agent that interviews patients, structures history, and prepares briefing documents.",
+  openGraph: {
+    title: "Prepped Agent",
+    description: "The autonomous clinical AI Agent that interviews patients, structures history, and prepares briefing documents.",
+    images: [
+      {
+        url: "https://prepped-agentic.vercel.app/cover.png",
+        width: 1200,
+        height: 630,
+      },
+    ],
+  },
+
+  twitter: {
+    card: "summary_large_image",
+    title: "Prepped Agent",
+    description: "The autonomous clinical AI Agent that interviews patients, structures history, and prepares briefing documents.",
+    images: ["https://prepped-agentic.vercel.app/cover.png"],
+  },
 };
 
 export default function RootLayout({

@@ -18,20 +18,30 @@ body {
   color: var(--foreground);
 }
 
-/* Hide scrollbar for Chrome, Safari and Opera */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.safe-area-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+@media (pointer: coarse) {
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
 
-/* Hide scrollbar for IE, Edge and Firefox */
 .no-scrollbar {
   -ms-overflow-style: none;
-  /* IE and Edge */
   scrollbar-width: none;
-  /* Firefox */
 }
 
-/* Animation for modal */
 @keyframes modal-in {
   from {
     opacity: 0;
@@ -48,7 +58,6 @@ body {
   animation: modal-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Condensed font utility for the metric section */
 .condensed {
   font-stretch: condensed;
 }

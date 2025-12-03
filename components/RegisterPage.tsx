@@ -24,7 +24,7 @@ export const RegisterPage: React.FC = () => {
         const user = await account.get();
         localStorage.setItem('isLoggedIn', 'true');
         localStorage.setItem('userId', user.$id);
-        router.push('/dashboard');
+        router.push('/chat');
     } catch (err: any) {
         console.error(err);
         setError(err.message || 'Registration failed');
@@ -39,14 +39,14 @@ export const RegisterPage: React.FC = () => {
 
       <button
         onClick={() => router.push('/')}
-        className="fixed top-8 left-8 z-50 p-3 rounded-full bg-white/80 dark:bg-[#3a3a3a]/80 border border-gray-200/50 dark:border-[#454545] hover:bg-gray-50 dark:hover:bg-[#4a4a4a] transition-colors shadow-sm backdrop-blur-sm"
+        className="fixed top-4 left-4 md:top-8 md:left-8 z-50 p-2.5 md:p-3 rounded-full bg-white/80 dark:bg-[#3a3a3a]/80 border border-gray-200/50 dark:border-[#454545] hover:bg-gray-50 dark:hover:bg-[#4a4a4a] transition-colors shadow-sm backdrop-blur-sm"
       >
-        <ArrowLeftIcon className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+        <ArrowLeftIcon className="w-4 h-4 md:w-5 md:h-5 text-gray-600 dark:text-gray-300" />
       </button>
 
-      <div className="w-full max-w-md px-6 z-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
-        <div className="text-center mb-10">
-          <h1 className="text-4xl font-semibold tracking-tighter text-gray-900 dark:text-white mb-2">
+      <div className="w-full max-w-md px-4 md:px-6 z-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="text-center mb-8 md:mb-10">
+          <h1 className="text-3xl md:text-4xl font-semibold tracking-tighter text-gray-900 dark:text-white mb-2">
             Create account
           </h1>
           <p className="text-gray-500 dark:text-gray-400 text-lg">
